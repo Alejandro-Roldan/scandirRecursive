@@ -26,7 +26,7 @@ walk (max depth):
 	Not timed: takes too long
 ```
 
-Also for comparison timing the command ls
+Also for comparison timing the command ls with max recursiveness
 ```
 time sudo ls -AR "/" > /dev/null
 ```

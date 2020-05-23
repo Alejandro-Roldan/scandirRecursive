@@ -34,9 +34,9 @@ time sudo ls -AR "/" > /dev/null
 ```
 
 ```
-real	0m6.151s
-user	0m1.156s
-sys	0m0.745s
+real	0m1.997s
+user	0m1.181s
+sys	0m0.703s
 ```
 
 Dependencies

@@ -10,14 +10,20 @@ Benchmarks
 ----------
 When running the benchmark that compares the os.walk method with this recursive scandir method, both starting from the root directory, the results are:
 ```
+scandir_recursive (depth=0):
+	time: 4.291534423828125e-05s
+listdir (not recursive func):
+	time: 0.00010967254638671875s
+--------------------------------------------------
 scandir_recursive (depth=2):
-	time: 0.0558934211730957s
-walk_limited (depth=2):
-	time: 9.656803607940674s
+	time: 0.04054856300354004s
+walk (depth=2):
+	time: 8.528342962265015s
+--------------------------------------------------
 scandir_recursive (max depth):
-	time: 8.259679794311523s
-walk_limited (max depth):
-  not actually timed because it takes so long
+	time: 5.832350492477417s
+walk (max depth):
+	Not timed: takes too long
 ```
 
 Also for comparison timing the command ls
@@ -36,7 +42,6 @@ real	0m5.131s
 user	0m1.946s
 sys	0m1.566s
 ```
-This last result also seems consistent.
 
 Dependencies
 ------------

@@ -1,6 +1,6 @@
 # scandirRecursive
 A os.scandir implementation that supports recursiveness aswell as a maximum threshold depth in the recursiveness.
-More or less same speed as os.list and os.walk (a bit slower) but has the advantage that my sacandir_recursive returns a list of os.DirEntry objects which is a big plus since it has a lot more information at hands reach and faster too since you don't need to call os.stat again. Also can optianally filter the outputted entries by several fields.
+More or less same speed as os.list and os.walk (a bit slower) but has the advantage that my scandir_recursive returns a list of os.DirEntry objects which is a big plus since it has a lot more information at hands reach and faster too in the end if you intend to manipulate the tree further (something very common) since you don't need to call os.stat again. Also can optionally filter the outputted entries by several fields.
 
 - scandir_recursive(path, mask=re.compile(''), ext_tuple=\[\], folders=True, files=True, hidden=False, min_len=0, max_len=9999, depth=0): A scandir implementation that allows recursiveness by level and returns a list of os.DirEntry objects. It doesn't follow symbolic links.
 Depth starts at the maximum value and goes down by one in each function call until it reaches 0 where it doesn't call the function anymore.
@@ -58,9 +58,9 @@ scandir_recursive (max depth):
 walk (max depth):
 	time: 3.72s
 ```
-os.listdir is so much faster since it doesn't do any os.stat calls at all and exclusively returns the names, but even in large directories the difference in speed is barely noticible plus it give almost no info.
+os.listdir is so much faster since it doesn't do any os.stat calls at all and exclusively returns the names, but even in large directories the difference in speed is barely noticible plus it gives no info compared to scandir_recursive.
 
-After that, scandir_recursive and the common implementation of the os.walk for leveled recursiveness are quite hand in hand in terms of speed and again os.walk returns less item information than scandir_recursive and would need extra os.stat calls to be on par.
+After that, scandir_recursive and the common implementation of the os.walk for leveled recursiveness are quite hand in hand in terms of speed and, again, os.walk returns less item information than scandir_recursive and would need extra os.stat calls to be on par.
 
 Also for comparison timing the command ls with max recursiveness
 ```

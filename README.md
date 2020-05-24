@@ -37,7 +37,7 @@ Return list
     
 - scandir_recursive_sorted(): Calls the scandir_recursive and tree_sort functions one after the other. For easyness and code cleaness. Takes the combination of both functions arguments (except the tree argument from tree_sort since it takes the output of the scandir_recursive directly).
 
-Calling the script from terminal deploys a command utility much like the command "ls". Mainly for testing since its obviously worse as a command.
+- main(): Calling the script from terminal deploys a command utility much like the command "ls". Mainly for testing and measure timing since its obviously worse as a command.
 
 Benchmarks
 ----------

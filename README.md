@@ -9,35 +9,23 @@ Depth starts at the maximum value and goes down by one in each function call unt
 Returns a list of os.DirEntry objects.
 
 Call diagram for an example depth=1:
-	***
-	
-	Original call depth=1
-
+```
+Original call depth=1
+finds a file -> add to list
+finds folder -> add to list
+depth > 0
+    Call function depth=depth-1=0
 	finds a file -> add to list
-
 	finds folder -> add to list
-
-	depth > 0
-	
-	    Call function depth=depth-1=0
-	    
-		finds a file -> add to list
-		
-		finds folder -> add to list
-		
-		depth not > 0
-		
-		    Doesn't call function
-		    
-		Return list
-		
-	    Add the lists from last call to this call list
-	    
+	depth not > 0
+	    Doesn't call function
 	Return list
-	
-	***
+    Add the lists from last call to this call list
+Return list
+```
+If the depth is -1 execute maximum recursiveness.
 
-If the depth is -1 execute maximum recursiveness.It takes a path, a depth level int (where -1 means max) and the optional filters:
+It takes a path, a depth level int (where -1 means max) and the optional filters:
 	- mask: Filters the filenames with regular expressions
 	- exts: Filter by extension. Takes a list of extensions you want in the form \['mp3','jpg'\]
 	- folders: Don't show folders
@@ -45,6 +33,7 @@ If the depth is -1 execute maximum recursiveness.It takes a path, a depth level 
 	- hidden: Show and access hidden files and folders
 	- min_len: Minimum filename length
 	- max_len: Maximum filename length
+	
 treeSort(): Sort the list tree that scandir_recursive outputs alphabetically and case-insensitively the absolute paths, this will produce having a folder followed by its contents. When the depth=0 separate the tree into files and directories, sort each of them alphabetically case-insensitive, and then join them together again. Takes the tree list and the optional arguments:
 	- depth: default value of -1
 	- files_before_dirs: Only avaible for depth=0. If active will show files before directories

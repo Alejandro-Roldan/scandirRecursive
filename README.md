@@ -2,24 +2,39 @@
 A os.scandir implementation that supports recursiveness aswell as a maximum threshold depth in the recursiveness.
 More or less same speed as os.list and os.walk (a bit slower) but has the advantage that my sacandir_recursive returns a list of os.DirEntry objects which is a big plus since it has a lot more information at hands reach and faster too since you don't need to call os.stat again. Also can optianally filter the outputted entries by several fields.
 
-Also there's a tree sorting (treeSort) function that takes different sorting options; and a function for calling the scandir and the sorting at the same time (scandir_recursive_sorted)
+scandir_recursive(): A scandir implementation that allows recursiveness by level and returns a list of os.DirEntry objects.
 
-scandir_recursive(): A scandir implementation that allows recursiveness by level. Depth starts at the maximum value and goes down by one in each function call until it reaches 0 where it doesn't call the function anymore.
+Depth starts at the maximum value and goes down by one in each function call until it reaches 0 where it doesn't call the function anymore.
+
 Returns a list of os.DirEntry objects.
+
 Call diagram for an example depth=1:
 	***
-	    Original call depth=1
+	
+	Original call depth=1
+
+	finds a file -> add to list
+
+	finds folder -> add to list
+
+	depth > 0
+	
+	    Call function depth=depth-1=0
+	    
 		finds a file -> add to list
+		
 		finds folder -> add to list
-		depth > 0
-		    Call function depth=depth-1=0
-			finds a file -> add to list
-			finds folder -> add to list
-			depth not > 0
-			    Doesn't call function
-			Return list
-		    Add the lists from last call to this call list
+		
+		depth not > 0
+		
+		    Doesn't call function
+		    
 		Return list
+		
+	    Add the lists from last call to this call list
+	    
+	Return list
+	
 	***
 
 If the depth is -1 execute maximum recursiveness.It takes a path, a depth level int (where -1 means max) and the optional filters:

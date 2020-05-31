@@ -51,7 +51,7 @@ def scandir_recursive(path, mask=re.compile(''), ext_tuple=[], folders=True, fil
             ((folders and entry.is_dir(follow_symlinks=False)) or
             (files and entry.is_file())) and
             (hidden or not entry.name.startswith('.')) and
-            (len(entry.name) >= min_len and len(entry.name) <= max_len)):
+            (min_len <= len(entry.name) <= max_len)):
 
             tree.append(entry)
 

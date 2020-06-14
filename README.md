@@ -1,6 +1,6 @@
 # scandirRecursive
-A os.scandir implementation that supports recursiveness aswell as a maximum threshold depth in the recursiveness.
-More or less same speed as os.list and os.walk (a bit slower) but has the advantage that my scandir_recursive returns a list of os.DirEntry objects which is a big plus since it has a lot more information at hands reach and faster too in the end if you intend to manipulate the tree further (something very common) since you don't need to call os.stat again. Also can optionally filter the outputted entries by several fields.
+An os.scandir implementation that supports recursiveness aswell as a maximum threshold depth in the recursiveness.
+More or less same speed as os.list and os.walk (a bit slower) but has the advantage that this scandir_recursive returns a list of os.DirEntry objects which is a big plus since it has a lot more information at hands reach and faster too in the end if you intend to manipulate the tree further (something very common) since you don't need to call os.stat again. Also can optionally filter the outputted entries by several fields.
 
 - scandir_recursive(path, mask=re.compile(''), ext_tuple=\[\], folders=True, files=True, hidden=False, min_len=0, max_len=9999, depth=0): A scandir implementation that allows recursiveness by level and returns a list of os.DirEntry objects. It doesn't follow symbolic links.
 Depth starts at the maximum value and goes down by one in each function call until it reaches 0 where it doesn't call the function anymore.
@@ -9,9 +9,9 @@ If the depth is -1 execute maximum recursiveness.
 It takes a path, a depth level int (where -1 means max) and the optional filters:
 	- mask: Filters the filenames with regular expressions. A str containing the regular expression to match.
 	- exts: Filter by extension. Takes a list of extensions you want in the form \['mp3','jpg'\]
-	- folders: Don't show folders
-	- files: Don't show files
-	- hidden: Show and access hidden files and folders
+	- folders: Show folders but don't show files
+	- files: Show files but don't show folders
+	- hidden: Show and look inside hidden files and folders
 	- min_len: Minimum filename length
 	- max_len: Maximum filename length
 
@@ -31,7 +31,7 @@ depth > 0
 Return list
 ```
 
-- tree_sort(tree, depth=-1, files_before_dirs=False): Sort the list tree that scandir_recursive outputs alphabetically and case-insensitively the absolute paths, this will produce having a folder followed by its contents. When the depth=0 separate the tree into files and directories, sort each of them alphabetically case-insensitive, and then join them together again. Takes the tree list and the optional arguments:
+- tree_sort(tree, depth=-1, files_before_dirs=False): Sort the list tree that scandir_recursive outputs alphabetically and case-insensitively the absolute paths, this will produce having a folder followed by its contents. When the depth=0 sort files first then folders or folders first then files (the default). Takes the tree list and the optional arguments:
 	- depth: default value of -1
 	- files_before_dirs: Only avaible for depth=0. If active will show files before directories
     

@@ -3,9 +3,9 @@
 import os
 import re
 
-def scandir_recursive_sorted(path, mask=re.compile(''), ext_tuple=[], folders=True,
-                            files=True, hidden=False, min_len=0,
-                            max_len=9999, depth=0, files_before_dirs=False):
+def scandir_recursive_sorted(path, mask=re.compile(''), ext_tuple=[],
+    folders=True, files=True, hidden=False, min_len=0, max_len=9999, depth=0,
+    files_before_dirs=False):
     ''' Create a scandir_recursive tree and sort it '''
     tree = scandir_recursive(path, mask, ext_tuple, folders, files, hidden,
                                 min_len, max_len, depth)
@@ -13,8 +13,8 @@ def scandir_recursive_sorted(path, mask=re.compile(''), ext_tuple=[], folders=Tr
 
     return tree
 
-def scandir_recursive(path, mask=re.compile(''), ext_tuple=[], folders=True, files=True,
-                        hidden=False, min_len=0, max_len=9999, depth=0):
+def scandir_recursive(path, mask=re.compile(''), ext_tuple=[], folders=True,
+    files=True, hidden=False, min_len=0, max_len=9999, depth=0):
     '''
         A scandir implementation that allows recursiveness by level and returns
         a list of os.DirEntry objects.
@@ -88,30 +88,20 @@ def scandir_recursive(path, mask=re.compile(''), ext_tuple=[], folders=True, fil
     return tree
 
 def tree_sort(tree, depth=-1, files_before_dirs=False):
-    ''' Sort the tree list '''
-    # When depth wasn't 0 sort alphabetically and case-insensitively
+    ''' Sort the tree list with a few options '''
+    # When depth wasn't 0 sort alphabetically and case-insensitively (casefold)
     # the absolute paths, this will produce having a folder followed by
     # its contents
-    if depth != 0: tree.sort(key=lambda entry: entry.path.lower())
-    # When the depth was 0 separate the tree into files and directories, sort
-    # each of them alphabetically case-insensitive, and then join them
-    # together again
-    else:
-        files = []
-        directories = []
-        # Separate
-        for entry in tree:
-            if entry.is_file(): files.append(entry)
-            elif entry.is_dir(follow_symlinks=False): directories.append(entry)
-            # Sort
-            files.sort(key=lambda item: item.name.lower())
-            directories.sort(key=lambda item: item.name.lower())
+    if depth != 0:
+        tree.sort(key=lambda entry: entry.path.casefold())
 
-        # Join again files before dirs or viceversa
-        if files_before_dirs:
-            tree = files + directories
-        else:
-            tree = directories + files
+    # When the depth is 0 order the list first by directories first then files
+    # or viceversa depending on the files_before_dirs flag, and then by name
+    # case-insensitevely (casefold)
+    else:
+        tree.sort(key=lambda entry:
+                    (entry.is_dir() if files_before_dirs else entry.is_file(),
+                    entry.name.casefold()))
 
     return tree
 

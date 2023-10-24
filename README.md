@@ -2,10 +2,10 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
 An os.scandir implementation that supports recursiveness aswell as a maximum threshold depth in the recursiveness.
-More or less same speed as os.list and os.walk (a bit slower) but has the advantage that this scandir_recursive returns a list of os.DirEntry objects which is a big plus since it has a lot more information at hands reach and faster too in the end if you intend to manipulate the tree further since you don't need to call os.stat again.
+More or less same speed as os.list and os.walk (a bit slower) but has the advantage that this scandir_recursive returns os.DirEntry objects, which is way faster if you intend to manipulate the tree further since you don't need to call os.stat again.
 Also can filter the outputted entries by several fields.
 
-- scandir_recursive(path, mask=re.compile(''), ext_tuple=\[\], folders=True, files=True, hidden=False, min_len=0, max_len=9999, depth=0, max_find_items=0): A scandir implementation that allows recursiveness by level and returns a list of os.DirEntry objects. It doesn't follow symbolic links.
+- scandir_recursive(path, mask=re.compile(''), ext_tuple=\[\], folders=True, files=True, hidden=False, min_len=0, max_len=9999, depth=0, max_find_items=0): A scandir implementation that allows recursiveness by level and returns a generator object that extracts os.DirEntry objects. It doesn't follow symbolic links.
 Depth starts at the maximum value and goes down by one in each function call until it reaches 0 where it doesn't call the function anymore.
 Returns a list of os.DirEntry objects.
 If the depth is -1 execute maximum recursiveness.
@@ -20,20 +20,33 @@ It takes a path, a depth level int (where -1 means max) and the optional filters
 	- depth: Maximum depth level to recursed
 	- max_find_items: Maximum matches
 
-Call diagram for an example depth=1:
+*Usage examples*
+
+Generator object _scandir_recursive
+```python
+tree = scandir_recursive(path, **kwargs)
+```
+List of os.DirEntry's
+```python
+tree_list = [item for item in scandir_recursive(path, **kwargs)]
+```
+Applying a function to each item at run time
+```python
+tree_foo = foo(item) for item in scandir_recursive(path, **kwargs)
+```
+
+## Work diagram for an example depth=1:
 ```
 Original call depth=1
-finds a file -> add to list
-finds folder -> add to list
-depth > 0
-    Call function depth=depth-1=0
-	finds a file -> add to list
-	finds folder -> add to list
-	depth not > 0
-	    Doesn't call function
-	Return list
-    Add the lists from last call to this call list
-Return list
+    finds a file -> yield
+    finds folder -> yield
+    depth > 0
+        Call function depth=depth-1=0
+            finds a file -> yield
+            finds folder -> yield
+            depth not > 0
+                Doesn't call function
+            return to the upper level call and continue
 ```
 
 - tree_sort(tree, depth=-1, files_before_dirs=False): Sort the list tree that scandir_recursive outputs alphabetically and case-insensitively the absolute paths, this will produce having a folder followed by its contents. When the depth=0 sort files first then folders or folders first then files (the default). Takes the tree list and the optional arguments:
@@ -41,6 +54,13 @@ Return list
 	- files_before_dirs: Only avaible for depth=0. If active will show files before directories
     
 - scandir_recursive_sorted(path, mask=re.compile(''), ext_tuple=[], folders=True, files=True, hidden=False, min_len=0, max_len=9999, depth=0, max_find_items=0, files_before_dirs=False): Calls the scandir_recursive and tree_sort functions one after the other. For easyness. Takes the combination of both functions arguments (except the tree argument from tree_sort since it takes the output of the scandir_recursive directly).
+
+*Usage examples*
+
+List of os.DirEntry's alphabetically ordered
+```python
+tree_sorted = scandir_recursive_sorted(path, **kwargs)
+```
 
 - main(): Calling the script from terminal deploys a command utility much like the command "ls". Mainly for testing and measure timing.
 

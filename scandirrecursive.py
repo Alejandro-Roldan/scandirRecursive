@@ -4,37 +4,6 @@ import os
 import re
 
 
-def scandir_recursive_sorted(
-    path,
-    mask=re.compile(""),
-    ext_tuple=[],
-    folders=True,
-    files=True,
-    hidden=False,
-    min_name_len=0,
-    max_name_len=9999,
-    depth=0,
-    max_find_items=0,
-    files_before_dirs=False,
-):
-    """Create a scandir_recursive tree and sort it"""
-    tree = scandir_recursive(
-        path,
-        mask,
-        ext_tuple,
-        folders,
-        files,
-        hidden,
-        min_name_len,
-        max_name_len,
-        depth,
-        max_find_items,
-    )
-    tree = tree_sort(tree, depth, files_before_dirs)
-
-    return tree
-
-
 def scandir_recursive(
     path,
     mask=re.compile(""),
@@ -49,29 +18,27 @@ def scandir_recursive(
 ):
     """
     A scandir implementation that allows recursiveness by level and returns
-    a list of os.DirEntry objects.
+    a generator object that extracts os.DirEntry objects.
     Depth starts at the maximum value and goes down by one in each function
     call until it reaches 0 where it doesn't call the function anymore.
-
-    Returns a list of os.DirEntry objects.
 
     Call diagram for an example depth=1:
     ***
         Original call depth=1
-            finds a file -> add to list
-            finds folder -> add to list
+            finds a file -> yield
+            finds folder -> yield
             depth > 0
                 Call function depth=depth-1=0
-                    finds a file -> add to list
-                    finds folder -> add to list
+                    finds a file -> yield
+                    finds folder -> yield
                     depth not > 0
                         Doesn't call function
-                    Return list
-                Add the lists from last call to this call list
-            Return list
+                    return to the upper level call and continue
     ***
 
     If the depth is -1 execute maximum recursiveness.
+
+    Returns: generator that yields os.DirEntry objects
     """
 
     # Sanitize func input
@@ -92,6 +59,43 @@ def scandir_recursive(
         depth=depth,
         max_find_items=max_find_items,
     )
+
+    return tree
+
+
+def scandir_recursive_sorted(
+    path,
+    mask=re.compile(""),
+    ext_tuple=[],
+    folders=True,
+    files=True,
+    hidden=False,
+    min_name_len=0,
+    max_name_len=9999,
+    depth=0,
+    max_find_items=0,
+    files_before_dirs=False,
+):
+    """Create a scandir_recursive tree and sort it
+
+    Returns: list
+    """
+    tree = [
+        item
+        for item in scandir_recursive(
+            path,
+            mask,
+            ext_tuple,
+            folders,
+            files,
+            hidden,
+            min_name_len,
+            max_name_len,
+            depth,
+            max_find_items,
+        )
+    ]
+    tree = tree_sort(tree, depth, files_before_dirs)
 
     return tree
 
@@ -130,8 +134,6 @@ def _scandir_recursive(
     depth=0,
     max_find_items=0,
 ):
-    tree = []
-
     # loop through scandir
     for entry in os.scandir(path):
         # BIIIG filter logic check to add entries
@@ -145,7 +147,7 @@ def _scandir_recursive(
             and (hidden or not entry.name.startswith("."))
             and (min_name_len <= len(entry.name) <= max_name_len)
         ):
-            tree.append(entry)
+            yield entry
 
         # Stop scan when max number of found items reached
         # max_find_items=0 means no limit
@@ -188,13 +190,11 @@ def _scandir_recursive(
                     depth=next_depth,
                     max_find_items=max_find_items,
                 )
-                tree = tree + tree1
+                yield from tree1
 
             # Unless it catches any of this errors
             except (FileNotFoundError, NotADirectoryError, PermissionError):
                 pass
-
-    return tree
 
 
 def tree_sort(tree, depth=-1, files_before_dirs=False):
@@ -338,7 +338,8 @@ def main():
                 pass
         print()
 
-    print("exectime: {:.4} s".format(end))
+    print(f"Found items: {len(tree)}")
+    print(f"exectime: {end:.4}s")
 
 
 if __name__ == "__main__":

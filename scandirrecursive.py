@@ -47,7 +47,7 @@ def scandir_recursive(
     # Make ext_tuple into a tuple of case insensitive non-duplicate exts
     ext_tuple = _format_exts_tuple(ext_tuple)
 
-    tree = _scandir_recursive(
+    return _scandir_recursive(
         path,
         mask=mask,
         ext_tuple=ext_tuple,
@@ -59,8 +59,6 @@ def scandir_recursive(
         depth=depth,
         max_find_items=max_find_items,
     )
-
-    return tree
 
 
 def scandir_recursive_sorted(
@@ -80,22 +78,19 @@ def scandir_recursive_sorted(
 
     Returns: list
     """
-    tree = [
-        item
-        for item in scandir_recursive(
-            path,
-            mask,
-            ext_tuple,
-            folders,
-            files,
-            hidden,
-            min_name_len,
-            max_name_len,
-            depth,
-            max_find_items,
-        )
-    ]
-    tree = tree_sort(tree, depth, files_before_dirs)
+    tree = scandir_recursive(
+        path,
+        mask,
+        ext_tuple,
+        folders,
+        files,
+        hidden,
+        min_name_len,
+        max_name_len,
+        depth,
+        max_find_items,
+    )
+    tree = tree_sort(list(tree), depth, files_before_dirs)
 
     return tree
 
@@ -125,7 +120,7 @@ def _ext_create(ext):
 def _scandir_recursive(
     path,
     mask=re.compile(""),
-    ext_tuple=[],
+    ext_tuple=tuple(),
     folders=True,
     files=True,
     hidden=False,
@@ -134,67 +129,101 @@ def _scandir_recursive(
     depth=0,
     max_find_items=0,
 ):
-    # loop through scandir
-    for entry in os.scandir(path):
-        # BIIIG filter logic check to add entries
-        if (
-            mask.match(entry.name)
-            and (not ext_tuple or entry.name.lower().endswith(ext_tuple))
-            and (
-                (folders and entry.is_dir(follow_symlinks=False))
-                or (files and entry.is_file())
-            )
-            and (hidden or not entry.name.startswith("."))
-            and (min_name_len <= len(entry.name) <= max_name_len)
-        ):
-            yield entry
+    """Defines the inner private function to generate and wraps it with a check for max items"""
 
-        # Stop scan when max number of found items reached
-        # max_find_items=0 means no limit
-        if 0 < max_find_items <= len(tree):
-            break
-
-        # When entry.is_dir
-        if entry.is_dir(follow_symlinks=False) and (
-            hidden or not entry.name.startswith(".")
-        ):
-            # Try calling the function again inside the directory
-            try:
-                # If depth is already 0 skip and continue with the next step
-                # of the loop
-                if depth == 0:
-                    continue
-                # If the depth is larger than 0 call the function again
-                # with depth-1. That'll produce that when it finds another
-                # directory inside it it will call the function with
-                # (depth-1)-1. It'll do that until there are no more folders
-                # in which case it will go back up to where it left off
-                # and repeat
-                elif depth > 0:
-                    next_depth = depth - 1
-                # And if depth is -1 call the function again with depth=-1.
-                # This will cause to call the function in every possible
-                # folder
-                elif depth == -1:
-                    next_depth = -1
-
-                tree1 = _scandir_recursive(
-                    entry.path,
-                    mask=mask,
-                    ext_tuple=ext_tuple,
-                    folders=folders,
-                    files=files,
-                    hidden=hidden,
-                    min_name_len=min_name_len,
-                    max_name_len=max_name_len,
-                    depth=next_depth,
-                    max_find_items=max_find_items,
+    def _scandir_recursive_inner(
+        path,
+        mask=re.compile(""),
+        ext_tuple=[],
+        folders=True,
+        files=True,
+        hidden=False,
+        min_name_len=0,
+        max_name_len=9999,
+        depth=0,
+        max_find_items=0,
+    ):
+        # loop through scandir
+        for entry in os.scandir(path):
+            # BIIIG filter logic check to add entries
+            if (
+                mask.match(entry.name)
+                and (not ext_tuple or entry.name.lower().endswith(ext_tuple))
+                and (
+                    (folders and entry.is_dir(follow_symlinks=False))
+                    or (files and entry.is_file())
                 )
-                yield from tree1
+                and (hidden or not entry.name.startswith("."))
+                and (min_name_len <= len(entry.name) <= max_name_len)
+            ):
+                yield entry
 
-            # Unless it catches any of this errors
-            except (FileNotFoundError, NotADirectoryError, PermissionError):
-                pass
+            # When entry.is_dir
+            if entry.is_dir(follow_symlinks=False) and (
+                hidden or not entry.name.startswith(".")
+            ):
+                # Try calling the function again inside the directory
+                try:
+                    # If depth is already 0 skip and continue with the next step
+                    # of the loop
+                    if depth == 0:
+                        continue
+                    # If the depth is larger than 0 call the function again
+                    # with depth-1. That'll produce that when it finds another
+                    # directory inside it it will call the function with
+                    # (depth-1)-1. It'll do that until there are no more folders
+                    # in which case it will go back up to where it left off
+                    # and repeat
+                    elif depth > 0:
+                        next_depth = depth - 1
+                    # And if depth is -1 call the function again with depth=-1.
+                    # This will cause to call the function in every possible
+                    # folder
+                    elif depth == -1:
+                        next_depth = -1
+
+                    sub_tree = _scandir_recursive_inner(
+                        entry.path,
+                        mask=mask,
+                        ext_tuple=ext_tuple,
+                        folders=folders,
+                        files=files,
+                        hidden=hidden,
+                        min_name_len=min_name_len,
+                        max_name_len=max_name_len,
+                        depth=next_depth,
+                        max_find_items=max_find_items,
+                    )
+                    yield from sub_tree
+
+                # Unless it catches any of this errors
+                except (
+                    FileNotFoundError,
+                    NotADirectoryError,
+                    PermissionError,
+                ):
+                    pass
+
+    tree = _scandir_recursive_inner(
+        path,
+        mask=mask,
+        ext_tuple=ext_tuple,
+        folders=folders,
+        files=files,
+        hidden=hidden,
+        min_name_len=min_name_len,
+        max_name_len=max_name_len,
+        depth=depth,
+    )
+
+    i = 0
+    # Yields from generator while less items found than max
+    # If max is 0 yield all
+    while (x := next(tree, None)) is not None and (
+        0 == max_find_items or i < max_find_items
+    ):
+        i += 1
+        yield x
 
 
 def tree_sort(tree, depth=-1, files_before_dirs=False):
@@ -296,6 +325,13 @@ def main():
         type=int,
         default=9999,
     )
+    # Maximum items found
+    parser.add_argument(
+        "--max_find_items",
+        help="Stop Searching when max found items are reached",
+        type=int,
+        default=0,
+    )
     # Show files before directories, only when depth=0
     parser.add_argument(
         "--files_before_dirs",
@@ -324,6 +360,7 @@ def main():
         min_name_len=args.min_name_len,
         max_name_len=args.max_name_len,
         depth=args.depth,
+        max_find_items=args.max_find_items,
         files_before_dirs=args.files_before_dirs,
     )
     end = time.time() - start

@@ -38,7 +38,7 @@ path = "/"
 ###############################################################################
 # DEPTH 0
 start = time.time()
-tree = scandir_recursive(path, depth=0)
+tree = list(scandir_recursive(path, depth=0))
 end = time.time() - start
 print("scandir_recursive (depth=0):")
 print("\ttime: {:.3}s".format(end))
@@ -52,21 +52,21 @@ print("\ttime: {:.3}s".format(end))
 print("-" * 50)  ##############################################################
 # DEPTH 6
 start = time.time()
-tree = scandir_recursive(path, depth=6)
+tree = list(scandir_recursive(path, depth=4))
 end = time.time() - start
-print("scandir_recursive (depth=6):")
+print("scandir_recursive (depth=4):")
 print("\ttime: {:.3}s".format(end))
 
 start = time.time()
-tree = walker(path, levels=6)
+tree = walker(path, levels=4)
 end = time.time() - start
-print("walk_limited (depth=6):")
+print("walk_limited (depth=4):")
 print("\ttime: {:.3}s".format(end))
 
 print("-" * 50)  ##############################################################
 # MAX DEPTH
 start = time.time()
-tree = scandir_recursive(path, depth=-1)
+tree = list(scandir_recursive(path, depth=-1))
 end = time.time() - start
 print("scandir_recursive (max depth):")
 print("\ttime: {:.3}s".format(end))

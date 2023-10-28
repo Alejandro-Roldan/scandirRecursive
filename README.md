@@ -28,6 +28,7 @@ tree = scandir_recursive(path, **kwargs)
 ```
 List of os.DirEntry's
 ```python
+tree_list = list(scandir_recursive(path, **kwargs))
 tree_list = [item for item in scandir_recursive(path, **kwargs)]
 ```
 Applying a function to each item at run time

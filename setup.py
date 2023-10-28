@@ -1,5 +1,5 @@
 from setuptools import setup
-from scandirRecursive import VERSION
+import scandirRecursive
 
 
 def readme():
@@ -9,15 +9,21 @@ def readme():
 
 setup(
     name="scandirRecursive",
-    version=VERSION,
+    version=scandirRecursive.__version__,
     description="An os.scandir implementation with recursiveness",
     long_description=readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/Alejandro-Roldan/scandirRecursive/tree/master",
-    author="Alejandro Roldán",
-    author_email="alej.roldan.trabajos@gmail.com",
-    license="GPLv3",
+    author=scandirRecursive.__author__,
+    author_email=scandirRecursive.__email__,
+    license=scandirRecursive.__license__,
     packages=["scandirRecursive"],
+    entry_points={
+        "console_scripts": [
+            "scandirrecursive = scandirRecursive.scandirrecursive:cli_run"
+        ]
+    },
+    package_data={},
     zip_safe=False,
     python_requires=">=3.5",
 )

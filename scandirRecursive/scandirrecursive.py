@@ -255,7 +255,7 @@ MAIN
 ###############################################################################
 
 
-def main():
+def cli_run():
     import time
     import argparse
 
@@ -380,4 +380,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    cli_run()

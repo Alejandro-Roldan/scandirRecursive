@@ -1,4 +1,4 @@
-import scandirRecursive
+import scandirrecursive
 
 # Information
 __license__ = "GPL3"

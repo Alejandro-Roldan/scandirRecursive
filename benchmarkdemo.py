@@ -5,9 +5,10 @@
     os.walk for different depths and measure the execution times.
 """
 
-from scandirrecursive import scandir_recursive
 import os
 import time
+
+from scandirrecursive import scandir_recursive
 
 
 def walker(path, levels=1):

@@ -256,8 +256,8 @@ MAIN
 
 
 def cli_run():
-    import time
     import argparse
+    import time
 
     # Call the argument parse object
     parser = argparse.ArgumentParser()

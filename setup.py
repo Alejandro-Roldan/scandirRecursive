@@ -14,7 +14,7 @@ setup(
     description="An os.scandir implementation with recursiveness",
     long_description=readme(),
     long_description_content_type="text/markdown",
-    url="https://github.com/Alejandro-Roldan/scandirrecursive/tree/master",
+    url="https://github.com/Alejandro-Roldan/scandirRecursive/tree/master",
     author=scandirrecursive.__author__,
     author_email=scandirrecursive.__email__,
     license=scandirrecursive.__license__,

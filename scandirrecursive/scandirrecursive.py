@@ -6,7 +6,7 @@ import re
 
 def scandir_recursive(
     path,
-    mask=re.compile(""),
+    mask="",
     ext_tuple=tuple(),
     folders=True,
     files=True,
@@ -44,6 +44,7 @@ def scandir_recursive(
     # Sanitize func input
     if not os.path.isdir(path):
         raise FileNotFoundError("Directory doesn't exist.")
+    mask = re.compile(mask)
     # Make ext_tuple into a tuple of case insensitive non-duplicate exts
     ext_tuple = _format_exts_tuple(ext_tuple)
 
@@ -73,6 +74,7 @@ def scandir_recursive_sorted(
     depth=0,
     max_find_items=0,
     files_before_dirs=False,
+    reverse=False,
 ):
     """Create a scandir_recursive tree and sort it
 
@@ -90,7 +92,7 @@ def scandir_recursive_sorted(
         depth,
         max_find_items,
     )
-    tree = tree_sort(list(tree), depth, files_before_dirs)
+    tree = tree_sort(list(tree), depth, files_before_dirs, reverse)
 
     return tree
 
@@ -226,13 +228,13 @@ def _scandir_recursive(
         yield x
 
 
-def tree_sort(tree, depth=-1, files_before_dirs=False):
+def tree_sort(tree, depth=-1, files_before_dirs=False, reverse=False):
     """Sort the tree list with a few options"""
     # When depth wasn't 0 sort alphabetically and case-insensitively (casefold)
     # the absolute paths. This will produce having a folder followed by
     # its contents
     if depth != 0:
-        tree.sort(key=lambda entry: entry.path.casefold())
+        tree.sort(key=lambda entry: entry.path.casefold(), reverse=reverse)
 
     # When the depth is 0 order the list by directories first, then files
     # or viceversa depending on the files_before_dirs flag, and then by name
@@ -242,7 +244,8 @@ def tree_sort(tree, depth=-1, files_before_dirs=False):
             key=lambda entry: (
                 entry.is_dir() if files_before_dirs else entry.is_file(),
                 entry.name.casefold(),
-            )
+            ),
+            reverse=reverse,
         )
 
     return tree
